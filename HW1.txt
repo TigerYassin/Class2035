@@ -1,0 +1,9 @@
+1. One interesting fact about me: 
+-I managed to cut down my sleep time to 4 hours a night so I engage in more 
+productive ativities
+
+2. Which Linux Distro I am using: 
+-Ubuntu 18.04.1 LTS
+
+3. Method I'm using to run Linux: 
+-Dual booting alongside Windows 10
