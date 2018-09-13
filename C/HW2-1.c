@@ -17,15 +17,13 @@ allowed).
 #include <stdio.h>
 #include <stdlib.h>
 
-/* TEMPORARY: this is an example of a global variable.*/
-int  RunningCount;
-
-/* TEMPORARY: this is an example function prototype.  The function is
-defined below.*/
-void CountHi(int);
 
 /* This is also a function prototype.  Do not delete this one.*/
 int  Load_Mem(char *, int[]);
+
+//The functions that I will be using
+int getEdge(int myArr[4]);
+int getEdgeThree(int myArr[3]);
 
 int main(int argc, char *argv[]) {
     int Array[1024];
@@ -52,6 +50,7 @@ int main(int argc, char *argv[]) {
     int temp1 = 0;
     int temp2 = 0;
 
+
     for (N = 0; N < NumX; N++) {
 
         /* your code goes here */
@@ -77,32 +76,32 @@ int main(int argc, char *argv[]) {
         //Check for special condition
         if (N == 0 || N == 31 || N == 992 || N == 1023) {
 
-        if (N == 0) {
-            temp1 = Array[1];
-            temp2 = Array[32];
+            if (N == 0) {
+                temp1 = Array[1];
+                temp2 = Array[32];
 
-            if (temp1 > temp2) {
-                Edges[N] = temp1 - temp2;
-            } else {
-                Edges[N] = temp2 - temp1;
+                if (temp1 > temp2) {
+                    Edges[N] = temp1 - temp2;
+                } else {
+                    Edges[N] = temp2 - temp1;
+                }
             }
-        }
 
-        if (N == 31) {
-            temp1 = Array[30];
-            temp2 = Array[63];
+            if (N == 31) {
+                temp1 = Array[30];
+                temp2 = Array[63];
 
-            if (temp1 > temp2) {
-                Edges[N] = temp1 - temp2;
-            } else {
-                Edges[N] = temp2 - temp1;
+                if (temp1 > temp2) {
+                    Edges[N] = temp1 - temp2;
+                } else {
+                    Edges[N] = temp2 - temp1;
+                }
             }
-        }
 
-        if (N == 992) {
-            temp1 = Array[993];
-            temp2 = Array[960];
-        }
+            if (N == 992) {
+                temp1 = Array[993];
+                temp2 = Array[960];
+            }
 
             if (temp1 > temp2) {
                 Edges[N] = temp1 - temp2;
@@ -121,73 +120,86 @@ int main(int argc, char *argv[]) {
                 }
             }
 
-            } else {
-                //Check for left edge
-                if (N % 32 == 0) {
-
-                }
+        } else {
 
 
-                //Check Right Edge
-                if (N % 32 == 31) {
-
-                }
-
-
-                //Check Top Edge
-                if (N < 32) {
-
-                }
+            //Check Top Edge
+            if (N < 32) {
+                int smallArr[] = {Array[N-1], Array[N+1], Array[N+32]};
+                Edges[N] = getEdgeThree(smallArr);
+            }
 
 
                 //Check Bottom Edge
-                if (N > 992) {
-
-                }
+            else if (N > 992) {
+                int smallArr[] = {Array[N-1], Array[N+1], Array[N-32]};
+                Edges[N] = getEdgeThree(smallArr);
             }
 
-            printf("%4d: %8d\n", N, Edges[N]);
+
+            //Check for left edge
+            if (N % 32 == 0) {
+               int smallArr[] = {Array[N+1], Array[N-32], Array[N+32]};
+                Edges[N] = getEdgeThree(smallArr);
+            }
+
+
+                //Check Right Edge
+            else if (N % 32 == 31) {
+                int smallArr[] = {Array[N-1], Array[N-32], Array[N+32]};
+                Edges[N] = getEdgeThree(smallArr);
+            }
+
+
+
+            else{
+                int bigArr[] = {Array[N+1], Array[N-1], Array[N-32], Array[N+32]};
+                Edges[N] = getEdge(bigArr);
+            }
         }
 
-        exit(0);
+        printf("%4d: %8d\n", N, Edges[N]);
     }
+
+    exit(0);
+}
 
 
 //returns (Max-Min) for regular index
-    int getEdge(int myArr[]) {
-        int max = -1000;
-        int min = 1000;
+int getEdge(int myArr[4]) {
+    int max = -1000;
+    int min = 1000;
 
-        for (int x = 0; x < 3; x++) {
-            if (myArr[x] > max) {
-                max = myArr[x];
-            }
-
-            if (myArr[x] < min) {
-                min = myArr[x];
-            }
+    for (int x = 0; x < 3; x++) {
+        if (myArr[x] > max) {
+            max = myArr[x];
         }
-        return (max - min);
+
+        if (myArr[x] < min) {
+            min = myArr[x];
+        }
     }
+    return (max - min);
+}
 
 
 
 //returns (Max-Min) for 3 point edge
-    int getEdgeThree(int myArr[]) {
-        int max = -1000;
-        int min = 1000;
+int getEdgeThree(int myArr[3]) {
+    int max = -1000;
+    int min = 1000;
 
-        for (int x = 0; x < 3; x++) {
-            if (myArr[x] > max) {
-                max = myArr[x];
-            }
-
-            if (myArr[x] < min) {
-                min = myArr[x];
-            }
+    for (int x = 0; x < 3; x++) {
+        if (myArr[x] > max) {
+            max = myArr[x];
         }
-        return (max - min);
+
+        if (myArr[x] < min) {
+            min = myArr[x];
+        }
     }
+    return (max - min);
+}
 
 
 
@@ -198,24 +210,24 @@ int main(int argc, char *argv[]) {
 a named file in the local directory. The values are placed in the
 passed integer array. The number of input integers is returned. */
 
-    int Load_Mem(char *InputFileName, int IntArray[]) {
-        int N, Addr, Value, NumVals;
-        FILE *FP;
+int Load_Mem(char *InputFileName, int IntArray[]) {
+    int N, Addr, Value, NumVals;
+    FILE *FP;
 
-        FP = fopen(InputFileName, "r");
-        if (FP == NULL) {
-            printf("%s could not be opened; check the filename\n", InputFileName);
-            return 0;
-        } else {
-            for (N = 0; N < 1024; N++) {
-                NumVals = fscanf(FP, "%d: %d", &Addr, &Value);
-                if (NumVals == 2)
-                    IntArray[N] = Value;
-                else
-                    break;
-            }
-            fclose(FP);
-            return N;
+    FP = fopen(InputFileName, "r");
+    if (FP == NULL) {
+        printf("%s could not be opened; check the filename\n", InputFileName);
+        return 0;
+    } else {
+        for (N = 0; N < 1024; N++) {
+            NumVals = fscanf(FP, "%d: %d", &Addr, &Value);
+            if (NumVals == 2)
+                IntArray[N] = Value;
+            else
+                break;
         }
+        fclose(FP);
+        return N;
     }
+}
 
