@@ -47,10 +47,59 @@ int main(int argc, char *argv[]) {
 
    for(N = 0; N < NumX; N++) {
 
-     Edges[N] = Array[N]; // TEMPORARY (for example only). Replace this.
-     CountHi(Array[N]);  // TEMPORARY (for example only). Remove this.
      
      /* your code goes here */
+
+	/* TODO: 
+	 	1. Pull in the array 
+		2. The 2d array is given as a 1D so we must get the edges 
+		3. Check if cell is an edge cell 
+			-Left edge: N % 32 ==0
+			-Right edge: N % 32 == 31
+			-Top Edge: N < 32
+			-Bottom Edge: N > 992
+		4. Checks to see if its an edge then store the variables 
+			- Max Val 
+			- Min Val 
+		5. If current index is edge then the appropriate side would not be used 
+		6. Apply Algorithm 
+			- newVal = Max - Min
+		7. Set newVal to current index 
+	*/
+
+
+	//Check for special condition 
+	if(N == 0 || N == 32 || N == 992 || N == 1023){
+
+	}
+	if(N == 0){
+	
+	}
+
+else{
+	//Check for left edge
+	if(N % 32 == 0){
+		
+	}
+
+
+	//Check Right Edge
+	if(N % 32 == 31){
+	
+	}
+
+
+	//Check Top Edge
+	if(N < 32){
+	
+	}
+
+
+	//Check Bottom Edge
+	if(N > 992){
+	
+	}
+}
 
      printf("%4d: %8d\n", N, Edges[N]);
    }
@@ -58,13 +107,64 @@ int main(int argc, char *argv[]) {
    exit(0);
 }
 
-/* Temporary: this is an example function that accesses and changes a global
-   variable.  It is not needed for your program and you may remove it */
-void CountHi(int Pixel) {
-  if (Pixel >= 200)
-    RunningCount++;
-  return;
+
+//returns (Max-Min) for regular index
+int getEdge(int myArr[]){
+	int max = -1000;
+	int min = 1000;
+
+	for(int x = 0; x < 3; x++){
+		if (myArr[x] > max){
+			max = myArr[x];
+		}
+
+		if (myArr[x] < min){
+			min = myArr[x];
+		}
 }
+return (max - min);
+}
+
+
+
+//returns (Max-Min) for 3 point edge
+int getEdgeThree(int myArr[]){
+	int max = -1000;
+	int min = 1000;
+
+	for(int x = 0; x < 3; x++){
+		if (myArr[x] > max){
+			max = myArr[x];
+		}
+
+		if (myArr[x] < min){
+			min = myArr[x];
+		}
+}
+return (max - min);
+}
+
+
+
+//returns (Max-Min) for 2 point edge
+int getEdgeTwo(int myArr[]){
+	int max = -1000;
+	int min = 1000;
+
+	for(int x = 0; x < 2; x++){
+		if (myArr[x] > max){
+			max = myArr[x];
+		}
+
+		if (myArr[x] < min){
+			min = myArr[x];
+		}
+}
+return (max - min);
+}
+
+
+
 
 
 /* This routine loads in up to 1024 newline delimited integers from
