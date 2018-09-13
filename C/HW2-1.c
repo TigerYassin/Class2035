@@ -76,7 +76,7 @@ int main(int argc, char *argv[]) {
         //Check for special condition
         if (N == 0 || N == 31 || N == 992 || N == 1023) {
 
-            if (N == 0) {
+            if (N == 0) { //does logic for first special case
                 temp1 = Array[1];
                 temp2 = Array[32];
 
@@ -87,7 +87,7 @@ int main(int argc, char *argv[]) {
                 }
             }
 
-            if (N == 31) {
+            if (N == 31) {//does logic for second special case
                 temp1 = Array[30];
                 temp2 = Array[63];
 
@@ -98,7 +98,7 @@ int main(int argc, char *argv[]) {
                 }
             }
 
-            if (N == 992) {
+            if (N == 992) {//does logic for third special case
                 temp1 = Array[993];
                 temp2 = Array[960];
             }
@@ -109,7 +109,7 @@ int main(int argc, char *argv[]) {
                 Edges[N] = temp2 - temp1;
             }
 
-            if (N == 1023) {
+            if (N == 1023) {//does logic for last special case
                 temp1 = Array[1022];
                 temp2 = Array[991];
 
@@ -120,6 +120,7 @@ int main(int argc, char *argv[]) {
                 }
             }
 
+	//If it is not a special case, then excute: 
         } else {
 
 
@@ -152,7 +153,7 @@ int main(int argc, char *argv[]) {
 
 
 
-            else{
+            else{//Execute else if it is not a special edge nor a regular edge
                 int bigArr[] = {Array[N+1], Array[N-1], Array[N-32], Array[N+32]};
                 Edges[N] = getEdge(bigArr);
             }
@@ -171,10 +172,12 @@ int getEdge(int myArr[4]) {
     int min = 1000;
 
     for (int x = 0; x < 3; x++) {
+	//if the current value is larger than the max then set the max to the current value 
         if (myArr[x] > max) {
             max = myArr[x];
         }
 
+	//if the current value is less than the min then set the min to the current value 
         if (myArr[x] < min) {
             min = myArr[x];
         }
@@ -189,11 +192,13 @@ int getEdgeThree(int myArr[3]) {
     int max = -1000;
     int min = 1000;
 
+
+	//if the current value is larger than the max then set the max to the current value 
     for (int x = 0; x < 3; x++) {
         if (myArr[x] > max) {
             max = myArr[x];
         }
-
+	//if the current value is less than the min then set the min to the current value 
         if (myArr[x] < min) {
             min = myArr[x];
         }
