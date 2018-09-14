@@ -1,7 +1,7 @@
 /* Edge Detection
 
-Your Name:
-Date:
+Your Name: Yassin Alsahlani 
+Date: September 14, 2018
 
 This program detects edges in a 32X32 image array by comparing the
 intensity of each pixel and its 4 immediate neighbors (North, South,
