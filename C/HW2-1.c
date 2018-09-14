@@ -22,8 +22,9 @@ allowed).
 int  Load_Mem(char *, int[]);
 
 //The functions that I will be using
-int getEdge(int myArr[4]);
-int getEdgeThree(int myArr[3]);
+int getEdge(int myArr[5]);
+int getEdgeThree(int SumArr[4]);
+int getEdgeTwo(int SumArr[3]);
 
 int main(int argc, char *argv[]) {
     int Array[1024];
@@ -77,47 +78,23 @@ int main(int argc, char *argv[]) {
         if (N == 0 || N == 31 || N == 992 || N == 1023) {
 
             if (N == 0) { //does logic for first special case
-                temp1 = Array[1];
-                temp2 = Array[32];
-
-                if (temp1 > temp2) {
-                    Edges[N] = temp1 - temp2;
-                } else {
-                    Edges[N] = temp2 - temp1;
-                }
+		int smallArr[] = {Array[1], Array[32], Array[N]};
+                Edges[N] = getEdgeTwo(smallArr);
             }
 
             if (N == 31) {//does logic for second special case
-                temp1 = Array[30];
-                temp2 = Array[63];
-
-                if (temp1 > temp2) {
-                    Edges[N] = temp1 - temp2;
-                } else {
-                    Edges[N] = temp2 - temp1;
-                }
+		int smallArr[] = {Array[30], Array[63], Array[N]};
+                Edges[N] = getEdgeTwo(smallArr);
             }
 
             if (N == 992) {//does logic for third special case
-                temp1 = Array[993];
-                temp2 = Array[960];
-            }
-
-            if (temp1 > temp2) {
-                Edges[N] = temp1 - temp2;
-            } else {
-                Edges[N] = temp2 - temp1;
+		int smallArr[] = {Array[993], Array[960], Array[N]};
+                Edges[N] = getEdgeTwo(smallArr);
             }
 
             if (N == 1023) {//does logic for last special case
-                temp1 = Array[1022];
-                temp2 = Array[991];
-
-                if (temp1 > temp2) {
-                    Edges[N] = temp1 - temp2;
-                } else {
-                    Edges[N] = temp2 - temp1;
-                }
+		int smallArr[] = {Array[1022], Array[991], Array[N]};
+                Edges[N] = getEdgeTwo(smallArr);
             }
 
 	//If it is not a special case, then excute: 
@@ -126,35 +103,35 @@ int main(int argc, char *argv[]) {
 
             //Check Top Edge
             if (N < 32) {
-                int smallArr[] = {Array[N-1], Array[N+1], Array[N+32]};
+                int smallArr[] = {Array[N-1], Array[N+1], Array[N+32], Array[N]};
                 Edges[N] = getEdgeThree(smallArr);
             }
 
 
                 //Check Bottom Edge
             else if (N > 992) {
-                int smallArr[] = {Array[N-1], Array[N+1], Array[N-32]};
+                int smallArr[] = {Array[N-1], Array[N+1], Array[N-32], Array[N]};
                 Edges[N] = getEdgeThree(smallArr);
             }
 
 
             //Check for left edge
-            if (N % 32 == 0) {
-               int smallArr[] = {Array[N+1], Array[N-32], Array[N+32]};
+            else if (N % 32 == 0) {
+               int smallArr[] = {Array[N+1], Array[N-32], Array[N+32], Array[N]};
                 Edges[N] = getEdgeThree(smallArr);
             }
 
 
                 //Check Right Edge
             else if (N % 32 == 31) {
-                int smallArr[] = {Array[N-1], Array[N-32], Array[N+32]};
+                int smallArr[] = {Array[N-1], Array[N-32], Array[N+32], Array[N]};
                 Edges[N] = getEdgeThree(smallArr);
             }
 
 
 
             else{//Execute else if it is not a special edge nor a regular edge
-                int bigArr[] = {Array[N+1], Array[N-1], Array[N-32], Array[N+32]};
+                int bigArr[] = {Array[N+1], Array[N-1], Array[N-32], Array[N+32], Array[N]};
                 Edges[N] = getEdge(bigArr);
             }
         }
@@ -167,19 +144,40 @@ int main(int argc, char *argv[]) {
 
 
 //returns (Max-Min) for regular index
-int getEdge(int myArr[4]) {
-    int max = -1000;
-    int min = 1000;
+int getEdge(int myArr[5]) {
+    int max = -100;
+    int min = 500;
 
-    for (int x = 0; x < 3; x++) {
+    for (int x = 0; x < 5; x++) {
 	//if the current value is larger than the max then set the max to the current value 
-        if (myArr[x] > max) {
+        if (myArr[x] >= max) {
             max = myArr[x];
         }
 
 	//if the current value is less than the min then set the min to the current value 
-        if (myArr[x] < min) {
+        if (myArr[x] <= min) {
             min = myArr[x];
+        }
+    }
+    return (max- min);
+}
+
+
+
+//returns (Max-Min) for 4 point edge
+int getEdgeThree(int SumArr[4]) {
+    int max = -100;
+    int min = 500;
+
+    for (int x = 0; x < 4; x++) {
+	//if the current value is larger than the max then set the max to the current value 
+        if (SumArr[x] >= max) {
+            max = SumArr[x];
+        }
+
+	//if the current value is less than the min then set the min to the current value 
+        if (SumArr[x] <= min) {
+            min = SumArr[x];
         }
     }
     return (max - min);
@@ -188,25 +186,23 @@ int getEdge(int myArr[4]) {
 
 
 //returns (Max-Min) for 3 point edge
-int getEdgeThree(int myArr[3]) {
-    int max = -1000;
-    int min = 1000;
+int getEdgeTwo(int SumArr[3]) {
+    int max = -100;
+    int min = 500;
 
-
-	//if the current value is larger than the max then set the max to the current value 
     for (int x = 0; x < 3; x++) {
-        if (myArr[x] > max) {
-            max = myArr[x];
+	//if the current value is larger than the max then set the max to the current value 
+        if (SumArr[x] >= max) {
+            max = SumArr[x];
         }
+
 	//if the current value is less than the min then set the min to the current value 
-        if (myArr[x] < min) {
-            min = myArr[x];
+        if (SumArr[x] <= min) {
+            min = SumArr[x];
         }
     }
     return (max - min);
 }
-
-
 
 
 
