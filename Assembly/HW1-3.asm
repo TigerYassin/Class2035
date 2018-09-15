@@ -22,7 +22,7 @@ ClassID: .alloc 1
 	addi $5, $0, 10		#terminate program when 10 is reached 
 	addi $7, $0, 0		#stores the value of the largest number
 
-Loop:   lw $2, 0($1)		#Val at current index
+Loop3:   lw $2, 0($1)		#Val at current index
 	addi $8, $2, 1		#temp value 
 	slt $6, $7, $8		#checks if $7 < $8, where $8 = $2 + 1
 	beq $6, $0, JumpO	#if the value is greater, then jump to JumpO
@@ -32,7 +32,7 @@ Loop:   lw $2, 0($1)		#Val at current index
 JumpO:	addi $1, $1, 4		#moving to next index address
 	addi $3, $3, 1		#interate
 	beq $3, $5, Skip
-        j Loop                  #loop
+        j Loop3                  #loop
 Skip:   sw $4, ClassID($0)
 	jr    $31               # return to caller
 

@@ -1,6 +1,6 @@
 # HW2-2
-# Student Name:
-# Date:
+# Student Name: Yassin Alsahlani 
+# Date: 9/14/2018
 #
 # This program detects edges in a 32X32 image array by comparing the
 # intensity of each pixel and its 4 immediate neighbors (North, South,
