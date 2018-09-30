@@ -14,10 +14,12 @@ Date: 9/28/2018
 int start();
 int method3(int X, int Y); //opens the selected box
 int open(int X, int Y); //TODO Delete this
+int guess(int X, int Y); //TODO Delete this
 int method0(int X, int Y);
 int method2(int X, int Y);
 int count(int X, int Y);
 int method1(int X, int Y);
+int method4(int X, int Y);
 
 
 //Datastructure(s)
@@ -53,12 +55,32 @@ int start() {
     int X = rand() % 8;
     int Y = rand() % 8;
     if (values[X][Y] == 35) {
-        method3(X, Y);
+        method4(X, Y); //Call to guess the random index
     } else{
         start();
     }
 }
 
+
+//Is only called to guess the random index
+int method4(int X, int Y){
+
+    int curr = guess(X,Y);   //open
+
+    if(curr == -1){
+        curr = 60;
+        values[X][Y] = curr;
+        method2(X, Y);  //Means that a flag is found
+        return 0;
+    } else if(curr == 0){
+        values[X][Y] = curr;
+        method0(X,Y);   //Means that a zero is found
+        return 0;
+    }
+    values[X][Y] = curr; //Means that not bomb nor zero
+    method1(X,Y);
+    return 0;
+}
 
 //Opens the cell at the given index and checks to see if it is a bomb, or a zero or else
 int method3(int X, int Y){
