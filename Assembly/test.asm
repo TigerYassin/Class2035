@@ -45,13 +45,12 @@ main:       addi $2, $2, 1
             mflo $6
             sw $4, location($6)
             j StartFromBeginning 
-            j CheckIf
 
 
             #This method is a for loop, it starts from the Global Start Index and interates through it until it reaches the Global Index, in which it stops 
             #Throws each index to CheckIf to see if it able to be Opened of Flagged
             #If anything is opened or flagged, then you must start again from the Global Start Index 
-StartFromBeginning:  addi $20, $2, $0   #stores our Global Index temporarily
+StartFromBeginning:  addi $20, $2, 0   #stores our Global Index temporarily
                      addi $2, $12, 0      #start global index off from the beginning and CheckIf
 
 
@@ -66,43 +65,64 @@ StartFromBeginning:  addi $20, $2, $0   #stores our Global Index temporarily
             div $2, $8 #Returns Mod and divide
 Neighbor:   mflo $7    #returns the Row number
             mfhi $9    #returns the Column number
+            addi $9, $9, 1
+
             #Check if it is an edge and give different commands depending on the edge. Use $7 and $9 for edge dedection 
 
-            #Loop around it and pull out values from the memory accordingly and keep count of UnopenedCells and FlaggedCells 
-            addi $10, $2, 0
-            addi $11, $0, 0
+
+
+                addi $10, $0, -1 #Gets our low boundry condition (-1)
+                addi $15, $0, 8 #Gets our upper boundry condition (8)
+
+                #Instantiation
+                addi $7, $7, -2
+                addi $11, $0, -1  #counts row iters
+                addi $14, $0, 2   #ending point, stops when 3 iters are reached
+
+RowLoop:        addi $7, $7, 1
+                beq $11, $14, DoneRowLoop  #check if row in bound
+                addi $11, $11, 1
+                beq $7, $10, RowLoop
+                beq $7, $15, DoneRowLoop
+
+                
+
+                addi $13, $0, -1 #counts Col iters 
+                addi $9, $9, -3
+
+                #check if column in bound 
+ColLoop:        beq $13, $14, RowLoop
+                addi $13, $13, 1
+                addi $9, $9, 1 
+                beq $9, $10, ColLoop
+                beq $9, $15, RowLoop
+
+                #Check if we are on the index of the global box 
+                #I want it to continue if $13 == 1 and $11 == 1
+
+                andi $17, $13, 1
+                andi $18, $11, 1
+                and $18, $18, $17
+                bne $18, $0, ColLoop
+
+                ##DO LOGIC FOR LOADING WORD ROW $7  AND COLUMN $9    TO GET INDEX: ($7*8 + $9) 
+                mult $7, $8
+                mflo $6
+                add $2, $6, $9
+                mult $8, $2
+                mflo $6
+                lw $21, location($6)
+                swi 568
+                j ColLoop
 
 
 
-      #REGULAR CELLS NON-EDGE
-            #I want this to loop around the cell we give it. We give it $13, it must go around $13 starting from the top and ending at the bottom
-            addi $14, $0, 0  #counter for Loops
-LoopMemTop:      addi $10, $10, -9 #starts from the top Left
-                 mult $5, $10
-                 mflo $6
-                 lw $11, location($6)
-
-                #Check $11 is storing any Mines/Flags or Unopened and increase UnopenedCells and FlaggedCells accordingly 
-                #(row * x ) + (col * y) = Index  ; x starts from $7 -1 and ends at $7+1, and y starts from $8 -1 and ends $8+1, and the col should be called inside of row
-
-                 addi $10, $10, 1 #Top center
-                 mult $5, $10
-                 mflo $6
-                 lw $11, location($6)
-
-
-
-                 addi $10, $10,1 #Top Right
-                 mult $5, $10
-                 mflo $6
-                 lw $11, location($6)
-
-
+DoneRowLoop: jr $31
 
 
             #Calls another function Neighbor, that would get an Index, and return the number of UnopenedCells and FlaggedCells
             #This method takes those results along with the NumOnBox and returns a value if it possible to open or flag any cell
-CheckIf: 
+#CheckIf:    
 
 
             
