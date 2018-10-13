@@ -1,0 +1,44 @@
+#TODO: 
+-load all data from matrix into memory using hexidecimal 
+-open the first box and assign the current index value (Global Index) to a register and the NumOnBox should be assigned to a register
+-Begin top right, see if you can OpenEnable anything, if no, then open the next one to the right, then go back to the first row first and see if you can OpenEnable anything. 
+
+StartIndex - How far to go back in our loop of checking for openability 
+GlobalIndex - This is the ending Index
+
+Whenver something is flagged or opened or guess, you must return back to the StartIndex and keep passing every index to CheckIfYouCanOpenAnything and not guess anything until you have reached the GlobalIndex and the CheckIfYouCanOpenAnything method returns 0
+METHODS
+Main: 1) Start program, set the Global Index to 1 and call the Opener method
+	  2) 
+
+Opener: 1) Opens the cell given(Global Index) and stores the index value to a register and the NumOnBox to a register
+		2) Move back to the first index while still having the Global Index in a register, and walk down the row and see which cells can be opened by passing the cell index through CheckIfYouCanOpenAnything. If the current cannot open anything, then you move down the row by one, and check again. Keep doing that until you reach the Global Index again, and in that case, you will have to go back to guessing if the Global Index cannot open anything. 
+
+
+
+			For each iteration, store unopened cell index into same registers
+		#CheckIfYouCanOpenAnything will go around the Index it is given, it will circulate the index and count the number of UnopenedCells and FlaggedCells. If the number of UnopenedCells === 0, then exit, and reset the StartIndex. If the NumOnBox === number of UnopenedCells - number of FlaggedCells, then Flag all unopened. If the NumOnBox = FlaggedCells && UnopenedCells, then open all the boxes around it. MUST PASS IT THROUGH A METHOD THAT WOULD RETURN THE COUNTS IN A REGISTER. 
+
+DOES NOT OPEN ANYTHING!!!
+CheckIfYouCanOpenAnything: 1) Run Neighbors and get the return value in a register
+						   2) Gets that value from the register: -1 == Exited, 0 == OpenAllAround, 1 == FlagAllAround
+						   3) if the value -1 is returned, then move the Global index to the right once and return back to Opener
+
+
+Neighbors: 1) goes around the index and returns a count of the NumOfUnopened and NumOfFlags
+
+				-if the NumOfUnopened == 0, then Exit     --Return -1
+				-if the NumOnBox = NumOfUnopened - NumOfFlags, then Flag all the unopened      --Return 1
+				-if the NumOnBox = NumOfFlags && NumOfUnopened > 0, then Open all the boxes around it        --Return 0
+
+
+
+
+
+
+guessEnable: 	addi $2, $0, -1
+
+OpenEnable: 	addi $2, $0, 0
+
+
+
