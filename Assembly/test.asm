@@ -17,11 +17,19 @@ MineSweep: swi   567	   	   # Bury mines (returns # buried in $1)
 #12 - Temp index in CheckIf/Start Index
 #3 - Guess/Open/Flag Options
 #4 - NumOnBox -1 for mine
-#5 - Index mulitplier to get proper index ( REMOVE SOON )
+#5 - Index mulitplier to get proper index ( REMOVE SOON ) (4)
 #6 - Proper Index after Multiplication ( REMOVE SOON )
 #7 - Row number
-#8 - Dividing factor of 8
+#8 - Dividing factor of 8 (8)
 #9 - Column number
+#10 - LowerBoundry for Neighbor loop (-1)
+#11 - Counts Row iters 
+#13 - Counts Column iters 
+#14 - terminating point in loop (-2)
+
+
+#17 - $11 and 0001
+#18 - $13 and 0001
 
 #13 - UnopenedCells -Returns count
 #14 - FlaggedCells -Returns count
@@ -30,28 +38,30 @@ MineSweep: swi   567	   	   # Bury mines (returns # buried in $1)
 #20 - Stores the Global Index temporarily 
 
 
+          #GLOBAL VARIABLES 
 
             addi $2, $0, -1   #must reassign Global Index inorder to Open and Flag
-            addi $3, $0, -1    
-            addi $12, $0, 0
-            addi $5, $0, 4
-            addi $8, $0, 8
+            addi $3, $0, -1    #Operation Guess/Open/Flag
+            addi $12, $0, 0    #Start Index, We have to be revalued everytime a new row is completed 
+            addi $5, $0, 4    #set multiplier for memory access
+            addi $8, $0, 8    #set multiplier/divider for graph access
 
-main:       addi $2, $2, 1 
+main:       addi $2, $2, 1      #GLOBAL INDEX 
             addi $3, $0, -1    
             swi 568
             #Put num into mem
             mult $2, $5
             mflo $6
             sw $4, location($6)
-            j StartFromBeginning 
+            j StartBegin 
 
 
             #This method is a for loop, it starts from the Global Start Index and interates through it until it reaches the Global Index, in which it stops 
             #Throws each index to CheckIf to see if it able to be Opened of Flagged
             #If anything is opened or flagged, then you must start again from the Global Start Index 
-StartFromBeginning:  addi $20, $2, 0   #stores our Global Index temporarily
-                     addi $2, $12, 0      #start global index off from the beginning and CheckIf
+
+StartBegin:  addi $20, $2, 0   #stores our Global Index temporarily
+             addi $2, $12, 0      #start global index off from the beginning and CheckIf
 
 
 
@@ -72,7 +82,6 @@ Neighbor:   mflo $7    #returns the Row number
 
 
                 addi $10, $0, -1 #Gets our low boundry condition (-1)
-                addi $15, $0, 8 #Gets our upper boundry condition (8)
 
                 #Instantiation
                 addi $7, $7, -2
@@ -83,7 +92,7 @@ RowLoop:        addi $7, $7, 1
                 beq $11, $14, DoneRowLoop  #check if row in bound
                 addi $11, $11, 1
                 beq $7, $10, RowLoop
-                beq $7, $15, DoneRowLoop
+                beq $7, $8, DoneRowLoop
 
                 
 
@@ -95,7 +104,7 @@ ColLoop:        beq $13, $14, RowLoop
                 addi $13, $13, 1
                 addi $9, $9, 1 
                 beq $9, $10, ColLoop
-                beq $9, $15, RowLoop
+                beq $9, $8, RowLoop
 
                 #Check if we are on the index of the global box 
                 #I want it to continue if $13 == 1 and $11 == 1
@@ -118,11 +127,6 @@ ColLoop:        beq $13, $14, RowLoop
 
 
 DoneRowLoop: jr $31
-
-
-            #Calls another function Neighbor, that would get an Index, and return the number of UnopenedCells and FlaggedCells
-            #This method takes those results along with the NumOnBox and returns a value if it possible to open or flag any cell
-#CheckIf:    
 
 
             
