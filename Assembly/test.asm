@@ -48,6 +48,8 @@ MineSweep: swi   567	   	   # Bury mines (returns # buried in $1)
             addi $8, $0, 8    #set multiplier/divider for graph access
             addi $21, $0, 8   #Value for unopened cell in memory 
             addi $26, $0, 2   #Checks if we are on Row 2 Col 2
+            addi $27, $0, 9  #Checks for flags
+            addi $10, $0, -1 #Gets our low boundry condition (-1)
 
 main:       addi $2, $2, 1      #GLOBAL INDEX 
             addi $3, $0, -1    
@@ -56,6 +58,9 @@ main:       addi $2, $2, 1      #GLOBAL INDEX
             mult $2, $5
             mflo $6
             sb $4, location($6)
+            beq $4, $27, main
+            beq $4, $10, main
+
 
 
             #This method is a for loop, it starts from the Global Start Index and interates through it until it reaches the Global Index, in which it stops 
@@ -90,8 +95,6 @@ Neighbor:   div $2, $8 #Returns Mod and divide
             #Check if it is an edge and give different commands depending on the edge. Use $7 and $9 for edge dedection 
 
 
-
-                addi $10, $0, -1 #Gets our low boundry condition (-1)
 
                 #Instantiation
                 addi $7, $7, -2
@@ -139,6 +142,7 @@ ColLoop:        beq $13, $14, RowLoop
 
                 lb $6, location($6)
                 beq $6, $21, IncreaseUnopen
+                beq $6, $27, IncreaseFlag
                 beq $6, $10, IncreaseFlag
                 j ColLoop
 
