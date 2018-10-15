@@ -6,7 +6,7 @@
 
 # your data allocation/initialization goes here
 
-location: .word 8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8
+location: .word 0x08080808,0x08080808,0x08080808,0x08080808,0x08080808,0x08080808,0x08080808,0x08080808,0x08080808,0x08080808,0x08080808,0x08080808,0x08080808,0x08080808,0x08080808,0x08080808
 
 .text
 MineSweep: swi   567	   	   # Bury mines (returns # buried in $1)
@@ -55,7 +55,7 @@ main:       addi $2, $2, 1      #GLOBAL INDEX
             #Put num into mem
             mult $2, $5
             mflo $6
-            sw $4, location($6)
+            sb $4, location($6)
 
 
             #This method is a for loop, it starts from the Global Start Index and interates through it until it reaches the Global Index, in which it stops 
@@ -137,13 +137,13 @@ ColLoop:        beq $13, $14, RowLoop
 
 
 
-                lw $6, location($6)
+                lb $6, location($6)
                 beq $6, $21, IncreaseUnopen
                 beq $6, $10, IncreaseFlag
                 j ColLoop
 
 Open:           swi 568
-                sw $4, location($6)
+                sb $4, location($6)
                 ###CHECK IF $11 == 2 AND $13 == 2
                     ##IF TRUE: 
                 j ColLoop
