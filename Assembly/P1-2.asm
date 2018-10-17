@@ -1,40 +1,71 @@
-#     Minesweeper
-#
-#  Your Name:	Yassin Alsahlani 
-#  Date: 10/12/2018
+#Minesweeper
+
+# Student Name: Yassin Alsahlani 
+# Date: 10/15/2018
+
+
+
+#Hard coding our data into program 
+
+
+#Used 10x10 for ease of simplicity and I would have to write less code if I dont have to keep on checking if it is within our #bonds or not
+
+
 .data
 
-# your data allocation/initialization goes here
 
-location: .alloc 256
-
-.text
-MineSweep: swi   567	   	   # Bury mines (returns # buried in $1)
-  
-
-
-test:      addi  $2, $0, 27     # This is the cell that would be opened (input is the cell you want opened)   
-
-           addi $9, $0, 4        #mulitplier for index    
-           addi $3, $0, -1
-           addi $8, $0, -1
-           swi   568            # returns result in $4 (-1: mine; 0-8: count)
-           beq $4, $0, OpenAr
-           mult $9, $2
-           mflo $10
-           sw $4, location($10)
-           j GuessAr
-           j END
-
-
+Mem:		.word 	1,1
+#extra memory to store the local neighbors 
+MineArray:	.word	185273099, 185273099, 168495883, 168430090 , 185207306, 168430091 , 168430090, 168495882, 168430090, 185207306, 168430091, 168430090, 168495882, 168430090, 185207306,   168430091 , 168430090 ,   168495882, 168430090, 185207306, 168430091, 168430090 , 185273098 , 185273099, 185273099		#10x10 array 
 ###The PROBLEM : Add the number on the box to the memory 
+.text
 
-###OUR SOLUTION: 
+
+
 
 # I want to be able to guess open a box, 
-    #If that guess gives me a zero, then call OpenAr
+    #If that guess gives me a zero, then open around it 
+
     #If that guess gives anything else, then I want to guess open another box
+
+
           #After I open that surrounding box, I want to see if it is bordering a bomb/flag, so check the memory for any -1
+        #Must create methods for :
+        	##Detecting whether its a mine when we open it
+        			###If it is a mine, then Flag it and move on
+        			###If not, then just continue()
+
+
+
+
+#1 - Returns the number of bombs in our map
+#2 - Current Index
+#3 - Method of operation 
+	#Guess = -1
+	#Open = 0
+	#Flag = 1
+MineSweep: 		swi		567	 
+
+
+				addi	$16,$0,9	#CREATING OUR VALUES 		
+				addi	$17,$0,-1			
+				addi	$18,$0,10			
+				addi	$19,$0,11			
+		   		addi	$20, $1, 0			
+
+		   		
+		   		#Count == 16
+Solve:			addi	$20,$1,0			#Register 1 will give us the count 
+				addi 	$21,$0,1	
+
+				addi 	$7,$0,1			
+				beq 	$20,$0,END	 #STOP WHEN WE REACH 0		 
+				add 	$11,$0,$17		
+
+				add 	$12,$0,$17			
+				addi 	$23 ,$0,0			
+				addi 	$8,$0,0			
+				j 		MineDetector		
 
 
 
@@ -44,760 +75,160 @@ test:      addi  $2, $0, 27     # This is the cell that would be opened (input i
         #If the newly entered value($4) is equal to zero, then run the OpenAr method
 
 
-#I want to be able to open a cell and count the number of closed cells around it and the number of flags/mines
-    #Then I want to subtract the number on it from the number of mines/flags around it and store it to a register  --TODO--- 
-        #If the difference is equal to 0, then run the OpenAr method
-
-#I want to be able to get a cell with a value of zero, and open all the cells around it and store there values in memory along after subtracting the number of mines and flags around them. After opening the cells around them, I want to set the value of that index in memory to -5 to not get confused with null vals
-            
-            
-GuessAr:    addi  $3, $0, -1     # (the input is for the command you want, -1 is Guess, 0 is to open)
-            j RightCen
-
-
-            #Used to open all the cells around a 0 
-            #Must restore zero values as -5 after they have ran through OpenAr
-OpenAr:     addi $3, $0, 0  #0 for open
-
-
-
-RightCen:   addi $2, $2, 1
-            mult $9, $2          #get the proper index 
-            mflo $10
-            lw $4, location($10) # check if box opened previously
-            bne $4, $0, LeftCen #open box if not opened already
-                    #If it has already been open, then you leave it alone   
-
-
-        #this is called when the cell being called to isn't open 
-OpenCell: swi 568
-          sw $4, location($10) # store box value   
-          beq $4, $0, OpenAr  #count the number of bombs around first then call this function
-          beq $4, $8, Flag
-
-          #Checks for unvocered bombs/mines around it, $4 contains the number on that box, $20 is the new $2, $10 gets the appropriate index in mem by multiplication. $11 keeps count of the bombs/flags checks for -1 in mem and subtracts the count from the box number $4
-
-        
-#CheckBomb checks border cells to see if bomb has already been open/flagged
-SkipCount: addi $20, $2, 1
-           mult $20, $9
-           mflo $10 
-           lw $14, location($10)
-           bne $14, $8, SkipCount1
-           addi $4, $4, -1
-           beq $4, $0, OpenAr
-
-
-SkipCount1:  addi $20, $20, -2
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount2
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-SkipCount2:  addi $20, $20, -8
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount3
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-SkipCount3:  addi $20, $20, 1
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount4
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-SkipCount4:  addi $20, $20, 1
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount5
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-
-SkipCount5:  addi $20, $20, 14
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount6
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-
-SkipCount6:  addi $20, $20, 1
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount7
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-SkipCount7:  addi $20, $20, 1
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             mult $2, $9              ####COME BACK FROM THE MULT
-             mflo $10
-             bne $14, $8, LeftCen
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-
-LeftCen:    sw $4, location($10)
-            addi $2, $2, -2
-            mult $9, $2         #start open 
-            mflo $10
-            lw $4, location($10) # check if box opened previously
-            bne $4, $0, LeftTop #open box if not opened already 
-
-
-        #this is called when the cell being called to isn't open 
-OpenCe1:  swi 568
-          sw $4, location($10) # store box value
-          beq $4, $0, OpenAr          
-          beq $4, $8, Flag
-
-
-#CheckBomb checks border cells to see if bomb has already been open/flagged
-SkipCount10: addi $20, $2, 1
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount11
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-SkipCount11:  addi $20, $20, -2
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount12
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-SkipCount12: addi $20, $20, -8
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount13
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-SkipCount13:  addi $20, $20, 1
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount14
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-SkipCount14:  addi $20, $20, 1
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount15
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-
-SkipCount15:  addi $20, $20, 14
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount16
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-
-SkipCount16:  addi $20, $20, 1
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount17
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-SkipCount17:  addi $20, $20, 1
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             mult $2, $9   
-             mflo $10
-             bne $14, $8, LeftTop
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-
-
-            #upper bound      
-LeftTop:    sw $4, location($10)
-            addi $2, $2, -8
-            mult $9, $2         #start open 
-            mflo $10
-            lw $4, location($10) # check if box opened previously
-            bne $4, $0, CenterTop #open box if not opened already  
-
-
-        #this is called when the cell being called to isn't open 
-OpenCe2:  swi 568
-          sw $4, location($10) # store box value   
-          beq $4, $0, OpenAr
-          beq $4, $8, Flag
-
-
-#CheckBomb checks border cells to see if bomb has already been open/flagged
-SkipCount20: addi $20, $2, 1
-           mult $20, $9
-           mflo $10 
-           lw $14, location($10)
-           bne $14, $8, SkipCount21
-           addi $4, $4, -1
-           beq $4, $0, OpenAr
-
-
-SkipCount21:  addi $20, $20, -2
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount22
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-SkipCount22:  addi $20, $20, -8
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount23
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-SkipCount23:  addi $20, $20, 1
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount24
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-SkipCount24:  addi $20, $20, 1
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount25
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-
-SkipCount25:  addi $20, $20, 14
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount26
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-
-SkipCount26:  addi $20, $20, 1
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount27
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-SkipCount27:  addi $20, $20, 1
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             mult $2, $9   
-             mflo $10
-             bne $14, $8, CenterTop
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-          
-
-
-CenterTop:  sw $4, location($10)
-            addi $2,$2,1
-            mult $9, $2         #start open 
-            mflo $10
-            lw $4, location($10) # check if box opened previously
-            bne $4, $0, RightTop #open box if not opened already  
-
-
-        #this is called when the cell being called to isn't open 
-OpenCe3:  swi 568
-          sw $4, location($10) # store box value   
-          beq $4, $0, OpenAr 
-          beq $4, $8, Flag
-
-#CheckBomb checks border cells to see if bomb has already been open/flagged
-SkipCount30: addi $20, $2, 1
-           mult $20, $9
-           mflo $10 
-           lw $14, location($10)
-           bne $14, $8, SkipCount31
-           addi $4, $4, -1
-           beq $4, $0, OpenAr
-
-
-SkipCount31:  addi $20, $20, -2
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount32
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-SkipCount32:  addi $20, $20, -8
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount33
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-SkipCount33:  addi $20, $20, 1
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount34
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-SkipCount34:  addi $20, $20, 1
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount35
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-
-SkipCount35:  addi $20, $20, 14
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount36
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-
-SkipCount36:  addi $20, $20, 1
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount37
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-SkipCount37:  addi $20, $20, 1
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             mult $2, $9   
-             mflo $10
-             bne $14, $8, RightTop
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-          
-
-
-RightTop:   sw $4, location($10)
-            addi $2,$2, 1
-            mult $9, $2         #start open 
-            mflo $10
-            lw $4, location($10) # check if box opened previously
-            bne $4, $0, BottomLeft #open box if not opened already  
-
-
-        #this is called when the cell being called to isn't open 
-OpenCe4:  swi 568
-          sw $4, location($10) # store box value   
-          beq $4, $0, OpenAr
-          beq $4, $8, Flag
-
-#CheckBomb checks border cells to see if bomb has already been open/flagged
-SkipCount40: addi $20, $2, 1
-           mult $20, $9
-           mflo $10 
-           lw $14, location($10)
-           bne $14, $8, SkipCount41
-           addi $4, $4, -1
-           beq $4, $0, OpenAr
-
-
-SkipCount41:  addi $20, $20, -2
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount42
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-SkipCount42:  addi $20, $20, -8
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount43
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-SkipCount43:  addi $20, $20, 1
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount44
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-SkipCount44:  addi $20, $20, 1
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount45
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-
-SkipCount45:  addi $20, $20, 14
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount46
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-
-SkipCount46:  addi $20, $20, 1
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount47
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-SkipCount47:  addi $20, $20, 1
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             mult $2, $9   
-             mflo $10
-             bne $14, $8, BottomLeft
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-          
-
-
-            #get lower bound
-BottomLeft: sw $4, location($10)
-            addi $2,$2, 14
-            mult $9, $2         #start open 
-            mflo $10
-            lw $4, location($10) # check if box opened previously
-            bne $4, $0, BottomCen #open box if not opened already 
-
-
-        #this is called when the cell being called to isn't open 
-OpenCe5:  swi 568
-          sw $4, location($10) # store box value   
-          beq $4, $0, OpenAr 
-          beq $4, $8, Flag
-
-
-#CheckBomb checks border cells to see if bomb has already been open/flagged
-SkipCount50: addi $20, $2, 1
-           mult $20, $9
-           mflo $10 
-           lw $14, location($10)
-           bne $14, $8, SkipCount51
-           addi $4, $4, -1
-           beq $4, $0, OpenAr
-
-
-SkipCount51:  addi $20, $20, -2
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount52
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-SkipCount52:  addi $20, $20, -8
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount53
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-SkipCount53:  addi $20, $20, 1
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount54
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-SkipCount54:  addi $20, $20, 1
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount55
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-
-SkipCount55:  addi $20, $20, 14
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount56
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-
-SkipCount56:  addi $20, $20, 1
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount57
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-SkipCount57:  addi $20, $20, 1
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             mult $2, $9   
-             mflo $10
-             bne $14, $8, BottomCen
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-BottomCen:  sw $4, location($10)
-            addi $2,$2,1
-            mult $9, $2         #start open 
-            mflo $10
-            lw $4, location($10) # check if box opened previously
-            bne $4, $0, BottomRig #open box if not opened already  
-
-
-        #this is called when the cell being called to isn't open 
-OpenCe6:  swi 568
-          sw $4, location($10) # store box value   
-          beq $4, $0, OpenAr 
-          beq $4, $8, Flag
-          
-
-#CheckBomb checks border cells to see if bomb has already been open/flagged
-SkipCount60: addi $20, $2, 1
-           mult $20, $9
-           mflo $10 
-           lw $14, location($10)
-           bne $14, $8, SkipCount61
-           addi $4, $4, -1
-           beq $4, $0, OpenAr
-
-
-SkipCount61: addi $20, $20, -2
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount62
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-SkipCount62:  addi $20, $20, -8
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount63
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-SkipCount63:  addi $20, $20, 1
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount64
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-SkipCount64:  addi $20, $20, 1
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount65
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-
-SkipCount65:  addi $20, $20, 14
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount66
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-
-SkipCount66:  addi $20, $20, 1
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount67
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-SkipCount67:  addi $20, $20, 1
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             mult $2, $9   
-             mflo $10
-             bne $14, $8, BottomRig
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-
-BottomRig:  sw $4, location($10)
-            addi $2, $2, 1
-            mult $9, $2         #start open 
-            mflo $10
-            lw $4, location($10) # check if box opened previously
-            bne $4, $0, END #open box if not opened already  
-
-
-        #this is called when the cell being called to isn't open 
-OpenCe7:  swi 568
-          sw $4, location($10) # store box value   
-          beq $4, $0, OpenAr 
-          beq $4, $8, Flag
-          
-#CheckBomb checks border cells to see if bomb has already been open/flagged
-SkipCount70: addi $20, $2, 1
-           mult $20, $9
-           mflo $10 
-           lw $14, location($10)
-           bne $14, $8, SkipCount71
-           addi $4, $4, -1
-           beq $4, $0, OpenAr
-
-
-SkipCount71:  addi $20, $20, -2
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount72
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-SkipCount72:  addi $20, $20, -8
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount73
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-SkipCount73:  addi $20, $20, 1
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount74
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-SkipCount74:  addi $20, $20, 1
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount75
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-
-SkipCount75:  addi $20, $20, 14
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount76
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-
-
-SkipCount76:  addi $20, $20, 1
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             bne $14, $8, SkipCount77
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-SkipCount77:  addi $20, $20, 1
-             mult $20, $9
-             mflo $10 
-             lw $14, location($10)
-             mult $2, $9   
-             mflo $10
-             sw $4, location($10)
-             bne $14, $8, END
-             addi $4, $4, -1
-             beq $4, $0, OpenAr
-
-            j END
-
-
-          ##THIS MUST LOOP AROUND THE INDEX AND SUBTRACT 1 FROM ALL OPEN BOXES 
-
-Flag:   addi $20, $2, 0 #is the bomb equivalent of $2
-        
-
-
-END:  jr $31
+Solve1:		bne 	$23 ,$0,Solve		#TODO  MAKE SURE THIS IS WORKING PROPERLY 
+				  addi 	$21 ,$0 ,1			
+				addi 	$7 , $0, 1			
+				addi 	$11, $17, 0			
+				addi 	$12,$17, 0			
+				addi 	$8 ,$0, 1	
+
+
+			#This method must take in the current index 
+			#Will give us the value of whether or not it is a bomb and how t o do with it
+MineDetector:   beq 	$20,$0, END	
+				addi 	$9,$0,0			
+				addi 	$10,$0,0			
+				addi 	$11,$17,0
+
+				#Multiplying Row and constant 
+				mult 	$21,$18				
+				mflo 	$13
+				add 	$5,$13,$7			
+				lb 		$13,MineArray($5) #Store the number into our array of map	
+
+				#Call specific methods based on number opened
+
+				bne 	$8,$0, Guess		
+				beq		$13,$19, NextSquare	#Moves to next square 
+				beq 	$13,$17, Flag1		
+				beq 	$13,$16 ,Flag1	
+
+				beq 	$13,$18, NextSquare	
+			
+
+#I want to be able to get a cell with a value of zero, and open all the cells around it and store there values in memory along 
+
+#after subtracting the number of mines and flags around them. After opening the cells around them, I want to set the value of that index in memory to -5 to not get confused with null vals
+
+			
+Nearby:	mult	$11,$18
+				mflo	$2  #Multiplying Our column $11 by hte multiplier 
+				add 	$2,$2,$12
+				add 	$15,$2,$5
+				beq 	$11,$0, Check
+			
+Nearby2:	lb 		$2,MineArray($15)	  
+				beq 	$2, $19, Next
+				beq 	$2 ,$18, Unopened		  
+				beq 	$2,$17, Flag2		  
+				beq 	$2,$16, Flag2		  
+			
+Next:	addi 	$12,$12,1
+				addi 	$2,$0,2
+				beq		$12,$2,SquareNext1
+				j 		Nearby
+			
+			#Move to next 
+SquareNext1:	addi	$12,$17, 0			#Called by Next, must move the local index down one to the next cell
+
+				addi 	$11 ,$11,1
+
+				beq 	$11 ,$2, Try
+				j 		Nearby
+					
+Try:		beq		$10,$0,NextSquare 	#CHecking for the neighbors 
+				beq		$13 , $0,Try1	
+
+
+				 beq	 	$13 ,$9 ,Try1
+
+				add 	$2, $9,$10
+				beq 	$13,$2,Try2
+			
+NextSquare:		addi 	$7,$7,1				
+				beq 	$7,$16,NextRow			
+				j	 	MineDetector			
+			
+NextRow:		addi 	$7,$0,1 		#check if working properly
+				addi 	$21,$21,1
+				beq 	$21,$16,Solve1
+				j 		MineDetector
+			
+
+		##Would check if our counter is set to 0
+				###If it is 0, then we will change its neighbor
+ Check:		beq 	$12,$0,Next
+				j 		Nearby2
+				
+Flag1:		addi 	$20,$20,-1				
+				j	 	NextSquare
+					
+
+					#Unopened method that must 
+						#sotre the value into our memory
+Unopened:		sb 		$15,Mem($10)
+				addi 	$10, $10, 1				
+				j 		Next
+			
+			#To be called once falgging
+Flag2:      	addi 	$9,$9,1				
+				j 		Next
+
+
+
+Guess:   	bne 	$13,$18,NextSquare
+				div 	$5,$18
+
+
+
+ 
+Calc:  	mflo 	$4				#Would give us our Offset		
+				mfhi 	$6
+				addi 	$4,$4,-1
+				addi 	$6,$6,-1
+				addi 	$14,$0,8
+
+				mult 	$4,$14	#Multiplying the 2 values 
+				mflo 	$2 				#Storing our new value in the second register
+				add 	$2,$2,$6					#We will use that register to open
+				bne 	$8,$0,Guess1
+				j 		FirstBox
+
+
+#Reseting our methods 
+		#Open
+Try1: 		addi 	$3,$0,0
+				j 		StatCalc
+
+
+
+		#When called, this mehtod must change $3 to begin flagging anything it is called onto
+Try2: 		addi	$3,$0,1	
+
+StatCalc: 		addi 	$10,$10,-1
+				lb 		$9,Mem($10)
+				div 	$9, $18
+				j		Calc
+				
+
+				#This will only be called from the our Calc method
+				#WIll open the first box then store the value in our memory 
+
+
+FirstBox:		swi 	568							#TODO MAKE SURE WORKING PROPERLY
+				sb 		$4, MineArray($9)
+				sb 		$19, MineArray($5)
+
+				bne		$10,$0,StatCalc		#branching if not equal to 0
+				addi 	$23 ,$0,1
+				j 		NextSquare		#Jump to the next cell
+			
+
+			
+Guess1:			addi 	$3,$0,-1			#Guess on the value 	
+				swi 	568						
+				sb 		$4, MineArray($5)		
+				addi 	$23 ,$0,1                
+				j 		Solve
+
+END:	jr  	$31						
