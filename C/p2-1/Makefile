@@ -11,7 +11,7 @@ CC = gcc
 CFLAGS += -g -Wall
 # Depending on your environment, you may need to include -pthread in your CXXFLAGS
 # If you get pthread errors when you run make, try removing the # in the line below
-CXXFLAGS += -g -Wall -Wextra # -pthread
+CXXFLAGS += -g -Wall -Wextra  -pthread
 
 
 # Primary build targets.
