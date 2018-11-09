@@ -195,24 +195,113 @@ HashTable* createHashTable(HashFunction hashFunction, unsigned int numBuckets) {
 
 void destroyHashTable(HashTable* hashTable) {
   free(hashTable->buckets); //Freeing everything inside of the buckets
-
+    //must cycle through the Array of buckets and free each entry one by one using the hashedKey
   free(hashTable);    //Freeing the pointer
 
 
 }
 
 void* insertItem(HashTable* hashTable, unsigned int key, void* value) {
+      //TODO
+      unsigned int hashedKey = hashTable->hash(key); //Hashed key
+      HashTableEntry * ptr =  findItem(hashTable, key); //Pass the variable via the findItem method
+
+      //check if the item already exists
+      if (ptr != NULL) {
+        void * temp = ptr -> value;  //keeping track of the former value
+        ptr -> value = value; //updating
+        return temp;
+      }
+
+        //check if it doesn't exist already and check if the table is empty or nothing
+        /*
+          -Check if doesn't exist
+          -Check if table is empty or Not
+        */
+      else if (ptr == NULL) {
+        HashTableEntry *myHashTableEntry = createHashTableEntry(key, value);
+        if (hashTable -> buckets[hashedKey] == NULL) {
+          hashTable->buckets[hashedKey] = myHashTableEntry;
+          return NULL;
+        }
+
+        else{
+              HashTableEntry *ptr2 = hashTable->buckets[hashedKey];
+              while(ptr2 !=NULL){ //Will keep on loop through as long as its not null
+                if (ptr2->next == NULL) {
+                  ptr2-> next = myHashTableEntry;
+
+                  return NULL; //get out of the function
+                }
+                //TODO update the value of the ptr2
+                ptr2 = ptr2->next;
+              }
+
+            }
+
+      }
+
 
 }
 
 void* getItem(HashTable* hashTable, unsigned int key) {
+  unsigned int hashedKey = hashTable->hash(key); //Hashed key
+  HashTableEntry * ptr =  findItem(hashTable, key); //Pass the variable via the findItem method
+
+  if (ptr == NULL) {
+    return NULL;
+  }
+  return ptr -> value;
 
 }
 
+
+
+
 void* removeItem(HashTable* hashTable, unsigned int key) {
+
+  unsigned int hashedKey = hashTable->hash(key); //Hashed key
+  HashTableEntry * ptr =  findItem(hashTable, key); //Pass the variable via the findItem method
+
+  HashTableEntry* ptr2 = hashTable->buckets[hashedKey];
+
+  if (ptr == NULL) { //checks if item exists
+     return NULL;
+  }
+  else if (ptr != NULL){
+    void* tempVal = ptr->value;
+
+    //TODO Check if that item is the first or only one in its bucket
+    if (ptr2 == ptr2) {
+      if (ptr->next ==NULL) {
+        hashTable->buckets[hashedKey] = NULL;
+        free(ptr);
+        return tempVal;
+      }
+
+
+      else if (ptr -> next != NULL) {
+        hashTable->buckets[hashedKey] = ptr->next;
+        free(ptr);
+        return tempVal;
+      }
+}
+      else if (ptr2) {
+        while (ptr2) {
+          if (ptr2->next->key == key) {
+            ptr2->next = ptr->next;
+            free(ptr);
+            return tempVal;
+          }
+        }
+
+    }
+  }
 
 }
 
 void deleteItem(HashTable* hashTable, unsigned int key) {
+//TODO start from key and free the entry at key
 
+removeItem(hashTable, key);
 }
