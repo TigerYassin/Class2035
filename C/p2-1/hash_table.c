@@ -1,6 +1,6 @@
 /*
- Student Name:
- Date:
+ Student Name: Yassin Alsahlani
+ Date: 11/9/2018
 
 =======================
 ECE 2035 Project 2-1:
@@ -126,7 +126,13 @@ struct _HashTableEntry {
 * @return The pointer to the hash table entry
 */
 static HashTableEntry* createHashTableEntry(unsigned int key, void* value) {
+  //malloc memory for HashTableEntry
+  HashTableEntry * myHashTableEntry = (HashTableEntry *) malloc(sizeof(HashTableEntry));
+  //assigning the right variables
+  myHashTableEntry ->key = key;
+  myHashTableEntry->value = value;
 
+  return myHashTableEntry;
 }
 
 /**
@@ -140,7 +146,17 @@ static HashTableEntry* createHashTableEntry(unsigned int key, void* value) {
 * @return The pointer to the hash table entry, or NULL if key does not exist
 */
 static HashTableEntry* findItem(HashTable* hashTable, unsigned int key) {
+      //TODO Must check if HashTable has given key
+      unsigned int hashedKey = hashTable->hash(key); //Hashed key
+      HashTableEntry * ptr = hashTable->buckets[hashedKey]; //getting value at key
+      while (ptr) {
+        if (key == ptr->key) {
+          return ptr;
+        }
+        ptr = ptr->next;
+      }
 
+      return NULL;
 }
 
 /****************************************************************************
@@ -178,6 +194,10 @@ HashTable* createHashTable(HashFunction hashFunction, unsigned int numBuckets) {
 }
 
 void destroyHashTable(HashTable* hashTable) {
+  free(hashTable->buckets); //Freeing everything inside of the buckets
+
+  free(hashTable);    //Freeing the pointer
+
 
 }
 
