@@ -130,7 +130,14 @@ TEST(AccessTest, GetSingleKey)
 
   destroyHashTable(ht);    // dummy item is also freed here
 
-	EXPECT_EQ(NULL, getItem(ht, 2147483647));
+	EXPECT_EQ(NULL, getItem(ht, 2147483647)); //Should return NULL because we removed it
+	EXPECT_EQ(NULL, getItem(ht, -2147483648)); //SHoudl also return NULL
+	EXPECT_EQ(NULL, getItem(ht, 0)); //Should also return NULL
+
+	//^^TEST WORKS PROPERLY
+
+
+
 }
 
 TEST(AccessTest, GetKey_KeyNotPresent)
@@ -147,6 +154,20 @@ TEST(AccessTest, GetKey_KeyNotPresent)
 
 	// Test if the hash table returns NULL when the key is not found.
 	EXPECT_EQ(NULL, getItem(ht, 1));
+
+	/*
+			My Own Code TEST
+			1) Throw in the MAX INT value
+			2)Throw in the MIN INT value
+	*/
+	EXPECT_EQ(NULL, getItem(ht, 2147483647)); //Should return NULL
+	EXPECT_EQ(NULL, getItem(ht, -2147483648));//Should also return NULL
+
+	EXPECT_EQ(NULL, getItem(ht, 2)); //Should return NULL
+	EXPECT_EQ(NULL, getItem(ht, -2));//Should also return NULL
+
+	EXPECT_EQ(NULL, getItem(ht, 3)); //Should return NULL
+	EXPECT_EQ(NULL, getItem(ht, -3));//Should also return NULL
 
 	// Destroy the hash table togeter with the inserted values
 	destroyHashTable(ht);
@@ -176,8 +197,35 @@ TEST(RemoveTest, SingleValidRemove)
 	// data should be returned.
 	EXPECT_EQ(m[0], data);
 
+	/*
+		My Own Testing CODE
+			1) Add the MAX integer
+			2) add the minimum integer
+			3)throw in random data in the middle
+			4)removing values that were never ever placed in the hashMap
+
+	*/
+
+		insertItem(ht, 2147483647, m[3]);
+		insertItem(ht, -2147483648, m[2]);
+
+		void* data1 = removeItem(ht, 4);
+		void* data2 = removeItem(ht, 8);
+
+		EXPECT_EQ(NULL, data1);		//checking if we return the right data
+		EXPECT_EQ(NULL, data2);		//Should return the proper data
+
+		EXPECT_EQ(NULL, data2);
+
+
+
+
 	// Free the data
 	free(data);
+	free(data1);
+	free(data2);
+	free(m[2]);
+
 
 	destroyHashTable(ht);
 }
@@ -189,6 +237,9 @@ TEST(RemoveTest, SingleInvalidRemove)
 	// When the hash table is empty, the remove funtion should still work.
 	EXPECT_EQ(NULL, removeItem(ht, 1));
 
+				//This should also work
+	EXPECT_EQ(NULL, removeItem(ht, -2147483648)); //MUST RETURN NULL
+	EXPECT_EQ(NULL, removeItem(ht, 2147483647));		//MUST ALSO RETURN NULL
 	destroyHashTable(ht);
 }
 
@@ -212,10 +263,29 @@ TEST(InsertTest, InsertAsOverwrite)
 	// corresponding to key=0 will hold m[1] and return m[0] as the return value.
 	EXPECT_EQ(m[0], insertItem(ht, 0, m[1]));
 
+
+/*
+		Throwing my own TESTING CODE
+		1)Use the same test used above
+				-THis should return the update value
+		2)Reset that value by inserting m[0] again
+		3)Check if the new updated value is present and override it again
+		4)Make a final getItem call to make sure the value from above was entered
+*/
+ 			EXPECT_EQ(m[1], insertItem(ht, 0, m[1])); //must return the previous inserted values
+
 	// Now check if the new value m[1] has indeed been stored in hash table with
 	// key=0.
 	EXPECT_EQ(m[1], getItem(ht,0));
 
+			EXPECT_EQ(m[1], insertItem(ht, 0, m[0]));
+			EXPECT_EQ(m[0], insertItem(ht, 0, m[1]));
+
+			EXPECT_EQ(m[1], getItem(ht, 0));
+
+
 	destroyHashTable(ht);
 	free(m[0]);    // don't forget to free item 0
+	free(m[1]);
+
 }

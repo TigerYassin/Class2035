@@ -194,25 +194,37 @@ HashTable* createHashTable(HashFunction hashFunction, unsigned int numBuckets) {
 }
 
 void destroyHashTable(HashTable* hashTable) {
+
   /*
   *Must delete our HashTable and free all the memory that was allocated to it beforehand
   *
   *I will loop through the whole hashTable to try to free each member in it
-  *So that I don't have any dangling pointers fam
+  *So that I don't have any dangling pointers
   */
-  HashTableEntry *curr;
-	for (int x = 0; x< hashTable->num_buckets; x++) {
-		for (curr = hashTable->buckets[x]; curr != NULL;  ) {
-			curr = curr->next;
-			free(curr);
-		}
-	}
 
-  //Freeing the Bucket at the end
-	free(hashTable->buckets);
+//Loop through LinkedList and free all values
+for (int x = 0; x < (hashTable -> num_buckets); x++)
+{
+  if(hashTable -> buckets[x])
+  {
+    HashTableEntry* current = hashTable -> buckets[x];
+    HashTableEntry *nextN = current -> next;
 
-  //Free the whole Hashtable 
-	free(hashTable);
+    //Will continue to run as long as the next node isn't null
+    while(nextN != NULL)
+    {
+      //Freeingthe value of the current first
+      free(current -> value);
+      free(current); //then freeing the current node
+
+
+      //Moving down the line to the next entry
+      current = nextN; //reseting our current node to the next node in line
+      nextN = nextN ->next;
+    }   free(current);//free the tail
+  }
+}free(hashTable);
+return;
 
 
 }
@@ -241,7 +253,7 @@ void* insertItem(HashTable* hashTable, unsigned int key, void* value) {
           return NULL;
         }
 
-        else{
+        else{ /* */
               HashTableEntry *ptr2 = hashTable->buckets[hashedKey];
               while(ptr2){ //Will keep on loop through as long as its not null
                 if (ptr2->next == NULL) {
@@ -287,15 +299,16 @@ void* removeItem(HashTable* hashTable, unsigned int key) {
     void* tempVal = ptr->value;
 
     //TODO Check if that item is the first or only one in its bucket
-    if (ptr == ptr2) {
-      if (ptr->next ==NULL) {
-        hashTable->buckets[hashedKey] = NULL;
-        free(ptr);
+    if (ptr == ptr2) { if (ptr->next ==NULL) { hashTable->buckets[hashedKey] = NULL; free(ptr);
         return tempVal;
       }
 
 
+
+
       else if (ptr -> next != NULL) {
+
+
         hashTable->buckets[hashedKey] = ptr->next;
         free(ptr);
         return tempVal;
