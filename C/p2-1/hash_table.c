@@ -194,9 +194,25 @@ HashTable* createHashTable(HashFunction hashFunction, unsigned int numBuckets) {
 }
 
 void destroyHashTable(HashTable* hashTable) {
-  free(hashTable->buckets); //Freeing everything inside of the buckets
-    //must cycle through the Array of buckets and free each entry one by one using the hashedKey
-  free(hashTable);    //Freeing the pointer
+  /*
+  *Must delete our HashTable and free all the memory that was allocated to it beforehand
+  *
+  *I will loop through the whole hashTable to try to free each member in it
+  *So that I don't have any dangling pointers fam
+  */
+  HashTableEntry *curr;
+	for (int x = 0; x< hashTable->num_buckets; x++) {
+		for (curr = hashTable->buckets[x]; curr != NULL;  ) {
+			curr = curr->next;
+			free(curr);
+		}
+	}
+
+  //Freeing the Bucket at the end
+	free(hashTable->buckets);
+
+  //Free the whole Hashtable 
+	free(hashTable);
 
 
 }
@@ -207,7 +223,7 @@ void* insertItem(HashTable* hashTable, unsigned int key, void* value) {
       HashTableEntry * ptr =  findItem(hashTable, key); //Pass the variable via the findItem method
 
       //check if the item already exists
-      if (ptr != NULL) {
+      if (ptr) {
         void * temp = ptr -> value;  //keeping track of the former value
         ptr -> value = value; //updating
         return temp;
@@ -227,7 +243,7 @@ void* insertItem(HashTable* hashTable, unsigned int key, void* value) {
 
         else{
               HashTableEntry *ptr2 = hashTable->buckets[hashedKey];
-              while(ptr2 !=NULL){ //Will keep on loop through as long as its not null
+              while(ptr2){ //Will keep on loop through as long as its not null
                 if (ptr2->next == NULL) {
                   ptr2-> next = myHashTableEntry;
 
@@ -240,15 +256,14 @@ void* insertItem(HashTable* hashTable, unsigned int key, void* value) {
             }
 
       }
-
+return NULL;
 
 }
 
 void* getItem(HashTable* hashTable, unsigned int key) {
-  unsigned int hashedKey = hashTable->hash(key); //Hashed key
   HashTableEntry * ptr =  findItem(hashTable, key); //Pass the variable via the findItem method
 
-  if (ptr == NULL) {
+  if (!ptr) {
     return NULL;
   }
   return ptr -> value;
@@ -265,14 +280,14 @@ void* removeItem(HashTable* hashTable, unsigned int key) {
 
   HashTableEntry* ptr2 = hashTable->buckets[hashedKey];
 
-  if (ptr == NULL) { //checks if item exists
+  if (!ptr) { //checks if item exists
      return NULL;
   }
-  else if (ptr != NULL){
+  else if (ptr){
     void* tempVal = ptr->value;
 
     //TODO Check if that item is the first or only one in its bucket
-    if (ptr2 == ptr2) {
+    if (ptr == ptr2) {
       if (ptr->next ==NULL) {
         hashTable->buckets[hashedKey] = NULL;
         free(ptr);
@@ -298,6 +313,7 @@ void* removeItem(HashTable* hashTable, unsigned int key) {
     }
   }
 
+return NULL;//return NULL because this is a non-void function
 }
 
 void deleteItem(HashTable* hashTable, unsigned int key) {

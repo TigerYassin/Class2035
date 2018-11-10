@@ -79,6 +79,16 @@ TEST(AccessTest, GetKey_TableEmpty)
 	EXPECT_EQ(NULL, getItem(ht, 1));
 	EXPECT_EQ(NULL, getItem(ht, 2));
 
+	/*
+		Creating my own
+		We should always get NULL because we didn't add anything to our HashTable
+		1)Test for largest int value
+		2)Test for smallest int value
+	*/
+	EXPECT_EQ(NULL, getItem(ht, 2147483647)); //testing the largest Int value
+	EXPECT_EQ(NULL, getItem(ht, -2147483648));//Testing the smallest Int value
+
+
 	// Test with index greater than the number of buckets.
 	EXPECT_EQ(NULL, getItem(ht, 10));
 
@@ -97,7 +107,30 @@ TEST(AccessTest, GetSingleKey)
   insertItem(ht, 0, m[0]);
   EXPECT_EQ(m[0], getItem(ht, 0));
 
+
+	/*
+		My own Test cases
+			1)Test for different keys that aren't in the HashTable and you should get NULL
+			2)Insert that Key into HashMap
+			3) Call that Key again, and it should work
+			4) Now Inert the Max and the Min
+			5)Destroy the HashTable and see if you can still access its content
+
+	*/
+	EXPECT_EQ(NULL, getItem(ht, 12));
+	insertItem(ht, 12, m[1]);
+	EXPECT_EQ(m[1], getItem(ht, 12));
+
+	insertItem(ht, 2147483647, m[3]);
+	insertItem(ht, -2147483648, m[2]);
+
+	//See if you can access them using the getItem method
+	EXPECT_EQ(m[3], getItem(ht, 2147483647));
+	EXPECT_EQ(m[2], getItem(ht, -2147483648));
+
   destroyHashTable(ht);    // dummy item is also freed here
+
+	EXPECT_EQ(NULL, getItem(ht, 2147483647));
 }
 
 TEST(AccessTest, GetKey_KeyNotPresent)
